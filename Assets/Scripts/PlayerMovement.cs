@@ -9,10 +9,17 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]  private float jumpForce = 100f;
     [Range(0, .3f)] [SerializeField] private float m_MovementSmoothing = .05f;
     [SerializeField] private float disToGround = 1f;
+    [SerializeField] private float maxEnergy = 20f;
+    [SerializeField] private float energyGen = 1f;
+    private float currentEnergy;
+
+
+    public EnergyBar energyBar;
 
     float horizontalMovement = 0f;
     Rigidbody rb;
     private bool jump;
+    private bool fire1;
     private bool isGrounded = false;
 
     private Vector3 m_Velocity = Vector3.zero;
@@ -21,6 +28,8 @@ public class PlayerMovement : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        currentEnergy = maxEnergy;
+        energyBar.SetMaxEnergy(maxEnergy);
     }
     // Update is called once per frame
     void Update()
@@ -31,6 +40,11 @@ public class PlayerMovement : MonoBehaviour
         {
             jump = true;
         }
+
+        if (Input.GetButtonDown("Fire1"))
+        {
+            fire1 = true;
+        }
     }
 
     void FixedUpdate()
@@ -38,6 +52,8 @@ public class PlayerMovement : MonoBehaviour
         GroundCheck();
         Move(horizontalMovement * Time.fixedDeltaTime, jump);
         jump = false;
+        EnergyGen(fire1, energyGen * Time.fixedDeltaTime);
+        fire1 = false;
 
         
     }
@@ -62,5 +78,18 @@ public class PlayerMovement : MonoBehaviour
         {
             isGrounded = false;
         }
+    }
+
+    void EnergyGen(bool firing, float energyGen)
+    {
+        if (fire1)
+        {
+            currentEnergy -= 20;
+            energyBar.SetEnergy(currentEnergy);
+            Debug.Log("fire");
+        }
+        currentEnergy += energyGen;
+        energyBar.SetEnergy(currentEnergy);
+
     }
 }
